@@ -24,7 +24,11 @@ class ScheduleBloc extends Bloc<ScheduleEvent, ScheduleState> {
       List<Schedule> result =
           await ScheduleRepository(databaseHelper: _databaseHelper)
               .getSchedule(event.day);
-      emit(ScheduleSingleData(result));
+      if (result.length > 0) {
+        emit(ScheduleSingleData(result));
+      } else {
+        emit(ScheduleNoData());
+      }
     });
 
     on<insertSchedule>((event, emit) async {

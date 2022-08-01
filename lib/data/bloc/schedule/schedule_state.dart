@@ -9,6 +9,8 @@ class ScheduleData extends ScheduleState {
   ScheduleData(this.scheduleList);
 }
 
+class ScheduleNoData extends ScheduleState {}
+
 class ScheduleSingleData extends ScheduleState {
   List<Schedule> schedule;
   ScheduleSingleData(this.schedule);

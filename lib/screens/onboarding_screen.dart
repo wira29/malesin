@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:introduction_screen/introduction_screen.dart';
 import 'package:malesin/commons/style.dart';
+import 'package:malesin/utils/preferences_action.dart';
+import 'package:malesin/utils/preferences_helper.dart';
 
 class OnBoardingScreen extends StatefulWidget {
   static String routeName = "/onBoardingScreen";
@@ -13,6 +15,8 @@ class OnBoardingScreen extends StatefulWidget {
 }
 
 class _OnBoardingScreenState extends State<OnBoardingScreen> {
+  final _preferences = PreferencesHelper();
+
   static List<PageViewModel> pageView = [
     PageViewModel(
       reverse: true,
@@ -93,6 +97,7 @@ class _OnBoardingScreenState extends State<OnBoardingScreen> {
           child: IntroductionScreen(
             pages: pageView,
             onDone: () {
+              _preferences.writePreferencesBool(ON_BOARDING, true);
               Navigator.pushReplacementNamed(context, '/bottomNavigation');
             },
             showBackButton: false,

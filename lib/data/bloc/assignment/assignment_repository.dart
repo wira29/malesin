@@ -10,7 +10,7 @@ class AssignmentRepository {
 
   Future<List<Assignment>> getAssignment() async {
     var results = await databaseHelper.getAssignments();
-    print(results[0]);
+    results = (results != null) ? results : [];
     return results.map((res) => Assignment.fromJson(res)).toList();
   }
 

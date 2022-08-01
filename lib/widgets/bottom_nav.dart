@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:malesin/commons/style.dart';
 import 'package:malesin/screens/home_screen.dart';
 import 'package:malesin/screens/schedule_screen.dart';
-import 'package:malesin/screens/setting_screen.dart';
 
 class BottomNav extends StatefulWidget {
   static String routeName = "/bottomNavigation";
@@ -19,7 +18,6 @@ class _BottomNavState extends State<BottomNav> {
   List<Widget> screen = [
     HomeScreen(),
     ScheduleScreen(),
-    SettingScreen(),
   ];
 
   void onTap(int index) {
@@ -59,14 +57,6 @@ class _BottomNavState extends State<BottomNav> {
               ),
               activeColor: primaryColor,
               title: Text("Jadwal"),
-            ),
-            BottomNavyBarItem(
-              icon: Icon(
-                Icons.settings,
-                color: const Color(0xFFA6D5FF),
-              ),
-              activeColor: primaryColor,
-              title: Text("Pengaturan"),
             )
           ],
         ),

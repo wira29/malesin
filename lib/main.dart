@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 // import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:intl/intl.dart';
 import 'package:malesin/commons/navigation.dart';
@@ -17,19 +18,23 @@ import 'package:malesin/screens/detail_assignment_screen.dart';
 import 'package:malesin/screens/onboarding_screen.dart';
 import 'package:malesin/screens/splash_screen.dart';
 import 'package:malesin/utils/notification_helper.dart';
+import 'package:malesin/utils/preferences_helper.dart';
 import 'package:malesin/widgets/bottom_nav.dart';
 import 'package:flutter_background_service_android/flutter_background_service_android.dart';
 
-// final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-//     FlutterLocalNotificationsPlugin();
-// final NotificationHelper _notificationHelper = NotificationHelper();
+final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+    FlutterLocalNotificationsPlugin();
+final NotificationHelper _notificationHelper = NotificationHelper();
+final PreferencesHelper _preferences = PreferencesHelper();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // await _notificationHelper.initNotification(flutterLocalNotificationsPlugin);
+  await _notificationHelper.initNotification(flutterLocalNotificationsPlugin);
 
   await initializeService();
+
+  await _preferences.init();
 
   runApp(const MyApp());
 }
@@ -68,6 +73,7 @@ bool onIosBackground(ServiceInstance service) {
 }
 
 void onStart(ServiceInstance service) async {
+  if (service is AndroidServiceInstance) {}
   // Only available for flutter 3.0.0 and later
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -78,9 +84,9 @@ void onStart(ServiceInstance service) async {
   // await preferences.setString("hello", "world");
 
   if (service is AndroidServiceInstance) {
-    service.on('setAsForeground').listen((event) {
-      service.setAsForegroundService();
-    });
+    // service.on('setAsForeground').listen((event) {
+    //   service.setAsForegroundService();
+    // });
 
     service.on('setAsBackground').listen((event) {
       service.setAsBackgroundService();
@@ -101,7 +107,7 @@ void onStart(ServiceInstance service) async {
 
   // bring to foreground
   DatabaseHelper _databaseHelper = DatabaseHelper();
-  Timer.periodic(const Duration(seconds: 10), (timer) async {
+  Timer.periodic(const Duration(hours: 6), (timer) async {
     List<Assignment> res =
         await AssignmentRepository(databaseHelper: _databaseHelper)
             .getAssignment();
@@ -112,24 +118,14 @@ void onStart(ServiceInstance service) async {
         if (now.month == tmpDate.month) {
           int margin = tmpDate.day - now.day;
           if (margin <= 3 && margin > 0) {
-            // if (service is AndroidServiceInstance) {
-            //   _notificationHelper.showNotification(
-            //       flutterLocalNotificationsPlugin, element, margin);
-            // }
-            // if (service is AndroidServiceInstance) {
-            //   service.setForegroundNotificationInfo(
-            //     title: "${element.mapel} - ${element.title}",
-            //     content:
-            //         "Batas pengumpulan tugas ${element.title} tinggal ${margin} hari lagi !!",
-            //   );
-            // }
+            if (service is AndroidServiceInstance) {
+              _notificationHelper.showNotification(
+                  flutterLocalNotificationsPlugin, element, margin);
+            }
           }
         }
       },
     );
-
-    /// you can see this log in logcat
-    // print('FLUTTER BACKGROUND SERVICE: ${DateTime.now()}');
   });
 }
 
@@ -141,18 +137,19 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  // final NotificationHelper _notificationHelper = NotificationHelper();
+  final NotificationHelper _notificationHelper = NotificationHelper();
 
   @override
   void initState() {
+    super.initState();
     FlutterBackgroundService().invoke("setAsBackground");
-    // _notificationHelper
-    //     .configureSelectNotificationSubject(DetailAssignmentScreen.routeName);
+    _notificationHelper
+        .configureSelectNotificationSubject(DetailAssignmentScreen.routeName);
   }
 
   @override
   void dispose() {
-    // selectNotificationSubject.close();
+    selectNotificationSubject.close();
     super.dispose();
   }
 
@@ -170,15 +167,6 @@ class _MyAppState extends State<MyApp> {
       child: MaterialApp(
         title: 'Flutter Demo',
         theme: ThemeData(
-          // This is the theme of your application.
-          //
-          // Try running your application with "flutter run". You'll see the
-          // application has a blue toolbar. Then, without quitting the app, try
-          // changing the primarySwatch below to Colors.green and then invoke
-          // "hot reload" (press "r" in the console where you ran "flutter run",
-          // or simply save your changes to "hot reload" in a Flutter IDE).
-          // Notice that the counter didn't reset back to zero; the application
-          // is not restarted.
           primarySwatch: Colors.blue,
           textTheme: myTextTheme,
         ),

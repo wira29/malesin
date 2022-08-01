@@ -28,10 +28,6 @@ class DatabaseHelper {
           status VARCHAR,
           dl DATE
           )''');
-        await db.execute(
-            '''INSERT INTO $_tbAssignment(mapel, title, desc, status, dl) VALUES(
-          "Basdat","ERD Chen","Membuat erd chen tokped", "belum", "12-06-2022"
-        )''');
         await db.execute('''CREATE TABLE $_tbSchedule (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           day INT,
@@ -39,9 +35,6 @@ class DatabaseHelper {
           start TEXT,
           end TEXT
         )''');
-        await db
-            .execute('''INSERT INTO $_tbSchedule(day, title, start, end) VALUES
-        (0, "Ilkom", "07.00", "10.10"), (0, "Basdat", "10.30", "13.10"), (1, "Sisop", "07.00", "10.10"), (1, "RPL", "13.30", "16.10"),(2, "Bing", "07.00", "10.10"), (1, "Prak Basdat", "10.30", "13.10")''');
       },
       version: 1,
     );

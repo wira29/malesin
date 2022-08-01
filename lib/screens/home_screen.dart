@@ -98,7 +98,13 @@ class _HomeScreenState extends State<HomeScreen> {
                             return const Center(
                               child: CircularProgressIndicator(),
                             );
-                          } else if (state is ScheduleSingleData) {
+                          } else if (state is ScheduleNoData) {
+                              return Center(
+                                child: Container(
+                                  child: Image.asset('assets/noSchedule.png', width: 150, height: 150,),
+                                ),
+                              );
+                          }else if (state is ScheduleSingleData) {
                             return Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: state.schedule
@@ -146,8 +152,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                 child: CircularProgressIndicator(),
                               );
                             } else if (state is AssignmentNoData) {
-                              return const Center(
-                                child: Text("Data kosong..."),
+                              return Center(
+                                child: Container(
+                                  child: Image.asset('assets/noAssignment.png', width: 150, height: 150,),
+                                ),
                               );
                             } else if (state is AssignmentData) {
                               return ListView.builder(

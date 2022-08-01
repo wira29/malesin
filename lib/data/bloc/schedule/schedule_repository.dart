@@ -28,7 +28,7 @@ class ScheduleRepository {
 
   Future<List<Schedule>> getSchedule(int day) async {
     var result = await databaseHelper.getSchedule(day);
-
+    result = (result != null) ? result : [];
     return result.map((res) => Schedule.fromJson(res)).toList();
   }
 

@@ -3,6 +3,9 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:malesin/commons/style.dart';
 import 'package:malesin/screens/onboarding_screen.dart';
+import 'package:malesin/utils/preferences_action.dart';
+import 'package:malesin/utils/preferences_helper.dart';
+import 'package:malesin/widgets/bottom_nav.dart';
 
 class SplashScreen extends StatefulWidget {
   static String routeName = "/splashScreen";
@@ -14,6 +17,8 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
+  final _preferences = PreferencesHelper();
+
   @override
   void initState() {
     super.initState();
@@ -21,9 +26,15 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   startSplashScreen() {
+    bool isOnBoarding = _preferences.readPreferencesBool(ON_BOARDING);
+
     const duration = Duration(seconds: 3);
     return Timer(duration, () {
-      Navigator.pushReplacementNamed(context, OnBoardingScreen.routeName);
+      if(isOnBoarding){
+        Navigator.pushReplacementNamed(context, BottomNav.routeName);  
+      }else {
+        Navigator.pushReplacementNamed(context, OnBoardingScreen.routeName);
+      }
     });
   }
 

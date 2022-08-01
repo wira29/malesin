@@ -1,0 +1,1 @@
+String ON_BOARDING = "onboarding_page";
