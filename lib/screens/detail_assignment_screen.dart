@@ -64,13 +64,6 @@ class _DetailAssignmentScreenState extends State<DetailAssignmentScreen> {
                         ),
                         Row(
                           children: [
-                            Icon(
-                              Icons.edit,
-                              color: textWarning,
-                            ),
-                            SizedBox(
-                              width: 8,
-                            ),
                             InkWell(
                               onTap: () =>
                                   _showDeleteDialog(context, widget.data.id),

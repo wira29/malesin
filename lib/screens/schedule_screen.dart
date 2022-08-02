@@ -231,7 +231,7 @@ Future<void> _showInsertScheduleDialog(
     builder: (BuildContext context) {
       return AlertDialog(
         title: Text(
-          'Tambah Tugas',
+          'Tambah Jadwal',
           style: Theme.of(context).textTheme.headline4,
         ),
         content: SingleChildScrollView(
@@ -278,8 +278,8 @@ Future<void> _showInsertScheduleDialog(
                   style: const TextStyle(color: Colors.black),
                   format: DateFormat("HH:mm"),
                   decoration: const InputDecoration(
-                    hintText: 'batas tanggal...',
-                    labelText: 'Batas Tanggal',
+                    hintText: 'selesai...',
+                    labelText: 'Selesai',
                   ),
                   onShowPicker: (context, currentValue) async {
                     final time = await showTimePicker(

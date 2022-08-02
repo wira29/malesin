@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -17,6 +18,7 @@ import 'package:malesin/data/models/assignment.dart';
 import 'package:malesin/screens/detail_assignment_screen.dart';
 import 'package:malesin/screens/onboarding_screen.dart';
 import 'package:malesin/screens/splash_screen.dart';
+import 'package:malesin/utils/background_service.dart';
 import 'package:malesin/utils/notification_helper.dart';
 import 'package:malesin/utils/preferences_helper.dart';
 import 'package:malesin/widgets/bottom_nav.dart';
@@ -26,107 +28,29 @@ final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
     FlutterLocalNotificationsPlugin();
 final NotificationHelper _notificationHelper = NotificationHelper();
 final PreferencesHelper _preferences = PreferencesHelper();
+final BackgroundService _service = BackgroundService();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await _notificationHelper.initNotification(flutterLocalNotificationsPlugin);
 
-  await initializeService();
-
   await _preferences.init();
 
-  runApp(const MyApp());
-}
+  _service.initializeIsolate();
 
-Future<void> initializeService() async {
-  final service = FlutterBackgroundService();
-  await service.configure(
-    androidConfiguration: AndroidConfiguration(
-      // this will be executed when app is in foreground or background in separated isolate
-      onStart: onStart,
+  if (Platform.isAndroid) {
+    await AndroidAlarmManager.initialize();
+  }
 
-      // auto start service
-      autoStart: true,
-      isForegroundMode: true,
-    ),
-    iosConfiguration: IosConfiguration(
-      // auto start service
-      autoStart: true,
-
-      // this will be executed when app is in foreground in separated isolate
-      onForeground: onStart,
-
-      // you have to enable background fetch capability on xcode project
-      onBackground: onIosBackground,
-    ),
+  await AndroidAlarmManager.periodic(
+    Duration(hours: 3),
+    1,
+    BackgroundService.callback,
+    exact: true,
   );
-  service.startService();
-}
 
-// run app from xcode, then from xcode menu, select Simulate Background Fetch
-bool onIosBackground(ServiceInstance service) {
-  WidgetsFlutterBinding.ensureInitialized();
-  print('FLUTTER BACKGROUND FETCH');
-
-  return true;
-}
-
-void onStart(ServiceInstance service) async {
-  if (service is AndroidServiceInstance) {}
-  // Only available for flutter 3.0.0 and later
-  WidgetsFlutterBinding.ensureInitialized();
-
-  // For flutter prior to version 3.0.0
-  // We have to register the plugin manually
-
-  // SharedPreferences preferences = await SharedPreferences.getInstance();
-  // await preferences.setString("hello", "world");
-
-  if (service is AndroidServiceInstance) {
-    // service.on('setAsForeground').listen((event) {
-    //   service.setAsForegroundService();
-    // });
-
-    service.on('setAsBackground').listen((event) {
-      service.setAsBackgroundService();
-    });
-  }
-
-  service.on('stopService').listen((event) {
-    service.stopSelf();
-  });
-
-  // set notif
-  if (service is AndroidServiceInstance) {
-    service.setForegroundNotificationInfo(
-      title: "Malesin",
-      content: "atur tugasmu agar tidak terlewat",
-    );
-  }
-
-  // bring to foreground
-  DatabaseHelper _databaseHelper = DatabaseHelper();
-  Timer.periodic(const Duration(hours: 6), (timer) async {
-    List<Assignment> res =
-        await AssignmentRepository(databaseHelper: _databaseHelper)
-            .getAssignment();
-    res.forEach(
-      (element) {
-        DateTime now = DateTime.now();
-        DateTime tmpDate = DateFormat("dd-MM-yyyy").parse(element.dl);
-        if (now.month == tmpDate.month) {
-          int margin = tmpDate.day - now.day;
-          if (margin <= 3 && margin > 0) {
-            if (service is AndroidServiceInstance) {
-              _notificationHelper.showNotification(
-                  flutterLocalNotificationsPlugin, element, margin);
-            }
-          }
-        }
-      },
-    );
-  });
+  runApp(const MyApp());
 }
 
 class MyApp extends StatefulWidget {
@@ -165,6 +89,7 @@ class _MyAppState extends State<MyApp> {
         ),
       ],
       child: MaterialApp(
+        debugShowCheckedModeBanner: false,
         title: 'Flutter Demo',
         theme: ThemeData(
           primarySwatch: Colors.blue,
